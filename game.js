@@ -41,6 +41,7 @@ const enemyImg = new Image();
 enemyImg.src = "img/enemy.png";
 
 const bossImgs = [
+    "img/boss.png",
     "img/boss1.png",
     "img/boss2.png",
     "img/boss3.png",
@@ -394,3 +395,4 @@ function loop() {
 // START
 spawnEnemies();
 loop();
+
