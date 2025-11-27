@@ -1,0 +1,12 @@
+body {
+    background: black;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+canvas {
+    border: 2px solid white;
+    image-rendering: pixelated;
+}
