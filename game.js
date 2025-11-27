@@ -1,7 +1,8 @@
 /--------------------------------------
-//juego hecho por badredin azzahraoui
-//v1.2 corregido
+// Juego hecho por Badredin Azzahraoui
+// v1.3 corregido selección de nave
 //--------------------------------------
+
 // -------------------------------------
 // CANVAS
 // -------------------------------------
@@ -25,7 +26,7 @@ const shipStats = {
 basic: { w: 40, h: 40, speed: 5, price: 0 },
 fast: { w: 45, h: 45, speed: 7, price: 500 },
 tank: { w: 55, h: 55, speed: 4, price: 1500 },
-special:{ w: 60, h: 60, speed: 8, price: 2000 }
+special: { w: 60, h: 60, speed: 8, price: 2000 }
 };
 
 // Cargar imágenes
@@ -58,7 +59,28 @@ return i;
 // -------------------------------------
 let ownedShips = JSON.parse(localStorage.getItem("ownedShips") || '["basic"]');
 let selectedShip = localStorage.getItem("selectedShip") || "basic";
-let menuIndex = 0; // índice de nave resaltada en la tienda
+let menuIndex = 0;
+
+// -------------------------------------
+// PLAYER
+// -------------------------------------
+const player = {
+x: canvas.width / 2 - 20,
+y: canvas.height - 80,
+ship: selectedShip, // nave actual
+
+```
+get w() { return shipStats[this.ship].w; },
+get h() { return shipStats[this.ship].h; },
+get speed() { return shipStats[this.ship].speed; },
+
+updateShip() {
+    this.ship = selectedShip;
+    if (this.x + this.w > canvas.width) this.x = canvas.width - this.w;
+}
+```
+
+};
 
 // -------------------------------------
 // VARIABLES DE JUEGO
@@ -76,21 +98,6 @@ let bossBullets = [];
 
 let currentBoss = null;
 let bossActive = false;
-
-// -------------------------------------
-// PLAYER
-// -------------------------------------
-const player = {
-x: canvas.width / 2 - 20,
-y: canvas.height - 80,
-
-```
-get w() { return shipStats[selectedShip].w; },
-get h() { return shipStats[selectedShip].h; },
-get speed() { return shipStats[selectedShip].speed; }
-```
-
-};
 
 // -------------------------------------
 // INPUT
@@ -179,12 +186,10 @@ if (keys["ArrowRight"] && player.x + player.w < canvas.width) player.x += player
 // ENEMIES
 enemies.forEach(e => {
     e.x += e.dir * e.speed;
-
     if (e.x < 0 || e.x + e.w > canvas.width) {
         e.dir *= -1;
         e.y += 10;
     }
-
     if (Math.random() < 0.005) {
         enemyBullets.push({
             x: e.x + e.w / 2 - 2,
@@ -197,10 +202,7 @@ enemies.forEach(e => {
 // BOSS
 if (bossActive && currentBoss) {
     currentBoss.x += currentBoss.dir * currentBoss.speed;
-
-    if (currentBoss.x < 0 || currentBoss.x + currentBoss.w > canvas.width) {
-        currentBoss.dir *= -1;
-    }
+    if (currentBoss.x < 0 || currentBoss.x + currentBoss.w > canvas.width) currentBoss.dir *= -1;
 
     if (Math.random() < 0.02) {
         bossBullets.push({
@@ -240,7 +242,6 @@ if (bossActive && currentBoss) {
             b.y = -999;
         }
     });
-
     if (currentBoss.life <= 0) {
         bossActive = false;
         currentBoss = null;
@@ -250,28 +251,12 @@ if (bossActive && currentBoss) {
 }
 
 // DAMAGE
-enemyBullets.forEach(b => {
-    if (coll(b, player)) {
-        lives--;
-        b.y = 999;
-
-        if (lives <= 0) gameOver = true;
-    }
-});
-
-bossBullets.forEach(b => {
-    if (coll(b, player)) {
-        lives--;
-        b.y = 999;
-
-        if (lives <= 0) gameOver = true;
-    }
-});
+enemyBullets.forEach(b => { if (coll(b, player)) { lives--; b.y = 999; if (lives <= 0) gameOver = true; } });
+bossBullets.forEach(b => { if (coll(b, player)) { lives--; b.y = 999; if (lives <= 0) gameOver = true; } });
 
 // NEXT LEVEL
 if (!bossActive && enemies.length === 0) {
     level++;
-
     if (level % 2 === 0) spawnBoss();
     else spawnEnemies();
 }
@@ -295,7 +280,6 @@ ctx.font = "22px Arial";
 ctx.fillText("Score (monedas): " + score, 120, 130);
 
 let y = 200;
-
 const shipKeys = Object.keys(shipStats);
 shipKeys.forEach((ship, i) => {
     let owned = ownedShips.includes(ship);
@@ -312,13 +296,11 @@ shipKeys.forEach((ship, i) => {
         ctx.fillText("Equipar → ENTER (" + ship + ")", 80, y + 25);
     }
 
-    // Resaltar nave actualmente seleccionada en el menú
     if (i === menuIndex) {
         ctx.strokeStyle = "yellow";
         ctx.lineWidth = 2;
         ctx.strokeRect(70, y - 20, 350, 50);
     }
-
     y += 80;
 });
 
@@ -337,27 +319,19 @@ ctx.fillStyle = "black";
 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
 ```
-// Player
-ctx.drawImage(shipImgs[selectedShip], player.x, player.y, player.w, player.h);
+ctx.drawImage(shipImgs[player.ship], player.x, player.y, player.w, player.h);
 
-// Enemies
-enemies.forEach(e => {
-    ctx.drawImage(enemyImg, e.x, e.y, e.w, e.h);
-});
+enemies.forEach(e => ctx.drawImage(enemyImg, e.x, e.y, e.w, e.h));
 
-// Bullets
 ctx.fillStyle = "yellow";
 bullets.forEach(b => ctx.fillRect(b.x, b.y, b.w, b.h));
 
-// Enemy bullets
 ctx.fillStyle = "red";
 enemyBullets.forEach(b => ctx.fillRect(b.x, b.y, b.w, b.h));
 
-// Boss bullets
 ctx.fillStyle = "orange";
 bossBullets.forEach(b => ctx.fillRect(b.x, b.y, b.w, b.h));
 
-// Boss
 if (bossActive && currentBoss) {
     ctx.drawImage(currentBoss.img, currentBoss.x, currentBoss.y, currentBoss.w, currentBoss.h);
 
@@ -369,7 +343,6 @@ if (bossActive && currentBoss) {
     ctx.fillRect(20, 10, lifeWidth, 10);
 }
 
-// HUD
 ctx.fillStyle = "white";
 ctx.font = "18px Arial";
 ctx.fillText("Nivel: " + level, 10, 620);
@@ -382,7 +355,7 @@ if (paused || gameOver) drawMenu();
 }
 
 // -------------------------------------
-// TIENDA: COMPRAR / EQUIPAR CON SELECCIÓN
+// TIENDA: COMPRAR / EQUIPAR
 // -------------------------------------
 document.addEventListener("keydown", (e) => {
 if (!paused || gameOver) return;
@@ -409,6 +382,7 @@ if (e.code === "Enter") {
     } else {
         selectedShip = ship;
         localStorage.setItem("selectedShip", ship);
+        player.updateShip(); // actualizar player al equipar
     }
 }
 ```
