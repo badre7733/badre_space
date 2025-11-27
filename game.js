@@ -363,6 +363,11 @@ function draw() {
 // -------------------------------------
 document.addEventListener("keydown", (e) => {
     if (!paused && !gameOver) return;
+    const shipKeys = Object.keys(shipStats);
+    if (e.code === "ArrowUp") { menuIndex--; 
+    if (menuIndex < 0) menuIndex = shipKeys.length - 1; }
+    if (e.code === "ArrowDown") { menuIndex++;
+    if (menuIndex >= shipKeys.length) menuIndex = 0; }
     if (e.code !== "Enter") return;
 
     Object.keys(shipStats).forEach(ship => {
@@ -381,6 +386,7 @@ document.addEventListener("keydown", (e) => {
                 localStorage.setItem("selectedShip", ship);
             }
         }
+        
     });
 });
 
@@ -396,3 +402,4 @@ function loop() {
 // START
 spawnEnemies();
 loop();
+
