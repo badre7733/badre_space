@@ -427,4 +427,3 @@ requestAnimationFrame(loop);
 // START
 spawnEnemies();
 loop();
-
