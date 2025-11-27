@@ -25,8 +25,8 @@ special: "img/player_special.png"
 const shipStats = {
 basic: { w: 40, h: 40, speed: 5, price: 0 },
 fast: { w: 45, h: 45, speed: 7, price: 500 },
-tank: { w: 55, h: 55, speed: 4, price: 1500 },
-special: { w: 60, h: 60, speed: 8, price: 2000 }
+tank: { w: 55, h: 55, speed: 8, price: 1500 },
+special: { w: 60, h: 60, speed: 10, price: 2000 }
 };
 
 // Cargar imágenes
@@ -401,3 +401,4 @@ requestAnimationFrame(loop);
 // START
 spawnEnemies();
 loop();
+
