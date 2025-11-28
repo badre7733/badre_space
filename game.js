@@ -363,14 +363,7 @@ if (!paused || gameOver) return;
 ```
 const shipKeys = Object.keys(shipStats);
 
-if (e.code === "ArrowUp") {
-    menuIndex--;
-    if (menuIndex < 0) menuIndex = shipKeys.length - 1;
-}
-if (e.code === "ArrowDown") {
-    menuIndex++;
-    if (menuIndex >= shipKeys.length) menuIndex = 0;
-}
+
 if (e.code === "Enter") {
     const ship = shipKeys[menuIndex];
     if (!ownedShips.includes(ship)) {
@@ -401,4 +394,5 @@ requestAnimationFrame(loop);
 // START
 spawnEnemies();
 loop();
+
 
